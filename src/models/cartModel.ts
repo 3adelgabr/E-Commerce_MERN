@@ -1,16 +1,16 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import type { ObjectId } from "mongoose"; 
 import type { IProduct } from "./productModel.js";
 
 const CartStatusEnum = ["active", "completed"];
 
-export interface ICartItem extends Document {
+export interface ICartItem {
     product: ObjectId | string | IProduct; 
     unitPrice: number;                 
     quantity: number;
 }
 
-export interface ICart extends Document {
+export interface ICart {
     userId: ObjectId | string;
     items: ICartItem[];
     totalAmount: number;                

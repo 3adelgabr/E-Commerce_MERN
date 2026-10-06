@@ -1,25 +1,58 @@
 import cartModel from "../models/cartModel.js";
+import productModel from "../models/productModel.js";
 
-interface createCartForUser {
-        userId: string;
+interface CreateCartForUser {
+    userId: string;
 }
 
-const createCartForUser = async ({ userId }: { userId: string }) => {
+const createCartForUser = async ({ userId }: CreateCartForUser) => {
     const cart = await cartModel.create({
         userId,
-        items: [],        // لازم تتأكد إنها مبعوته مصفوفة فاضية
-        totalAmount: 0,   // لازم تتأكد إن الرقم مبدئياً صفر
+        items: [],        
+        totalAmount: 0,   
         status: "active"
     });
     return cart;
 }
+
 interface GetActiveCartForUser {
     userId: string;
 }
-export const getActiveCartForUser = async ({userId}: GetActiveCartForUser) => {
-    let cart = await cartModel.findOne({userId, status: "active"})
-    if(!cart) {
-        cart = await createCartForUser ({userId});
+
+export const getActiveCartForUser = async ({ userId }: GetActiveCartForUser) => {
+    let cart = await cartModel.findOne({ userId, status: "active" });
+    if (!cart) {
+        cart = await createCartForUser({ userId });
     }
+    return cart;
+}
+
+interface AddItemToCart {
+    productId: string;
+    userId: string;
+    quantity: number; 
+}
+
+export const addItemToCart = async ({ productId, userId, quantity }: AddItemToCart) => {
+    // 1. هات السلة النشطة للمستخدم الأول (لو مش موجودة هتتعمل أوتوماتيك)
+    let cart = await getActiveCartForUser({ userId });
+
+    // 2. (هنا هيكمل كود إضافة المنتج أو تعديل الكمية لاحقاً...)
+    const existInCart = cart.items.find((p) => p.product === productId);
+
+    if(existInCart) {
+        return { data: "Item alrady exists", statusCode: 400};
+    }
+    // fetch
+    const product = await productModel.findById(productId);
+    if(!product){
+        return {data: "product not found", statusCode: 400};
+    }
+    cart.items.push({ 
+        product: productId, 
+        unitPrice: product.price, 
+        quantity: quantity 
+    } as any);
+
     return cart;
 }
