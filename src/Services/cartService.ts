@@ -38,7 +38,7 @@ export const addItemToCart = async ({ productId, userId, quantity }: AddItemToCa
     let cart = await getActiveCartForUser({ userId });
 
     // 2. (هنا هيكمل كود إضافة المنتج أو تعديل الكمية لاحقاً...)
-    const existInCart = cart.items.find((p) => p.product === productId);
+    const existInCart = cart.items.find((p) => p.product.toString() === productId);
 
     if(existInCart) {
         return { data: "Item alrady exists", statusCode: 400};
@@ -48,11 +48,17 @@ export const addItemToCart = async ({ productId, userId, quantity }: AddItemToCa
     if(!product){
         return {data: "product not found", statusCode: 400};
     }
+    if(product.stock < quantity) {
+        return {data: "Low stock for item", statusCode: 400};
+    }
     cart.items.push({ 
         product: productId, 
         unitPrice: product.price, 
         quantity: quantity 
     } as any);
+    cart.totalAmount += product.price * quantity;
 
+    const updatedCart = await cart.save();
+    return { data: updatedCart, statusCose: 200}
     return cart;
 }
