@@ -1,10 +1,13 @@
 import productModel from "../models/productModel.js";
 
-export const getAllProducts = async() => {
+export const getAllProducts = async () => {
     return await productModel.find();
 }
 
 export const seedInitialProducts = async () => {
+
+    try {
+    // عرفنا المصفوفة بره عشان تكون مرئية لكل الدالة
     const products = [
         {
             title: "Wireless Noise-Canceling Headphones", 
@@ -67,8 +70,13 @@ export const seedInitialProducts = async () => {
             stock: 23
         },
     ];
-    const existingProducts = await getAllProducts();
-    if(existingProducts.length === 0) {
-        await productModel.insertMany(products)
+
+        const existingProducts = await getAllProducts();
+        if (existingProducts.length === 0) {
+            await productModel.insertMany(products);
+            console.log("Initial products seeded successfully!");
+        }
+    } catch (err: any) {
+        console.error("Cannot seed DB", err.message);
     }
 };

@@ -1,5 +1,5 @@
 import express from "express";
-import { getActiveCartForUser, addItemToCart, updateItemInCart, deleteItemInCart, clearCart } from "../Services/cartService.js";import validateJWT from "../middelwares/validateJWT.js"; 
+import { getActiveCartForUser, addItemToCart, updateItemInCart, deleteItemInCart, clearCart, checkout } from "../Services/cartService.js";import validateJWT from "../middelwares/validateJWT.js"; 
 import type { ExtendRequest } from "../types/extendedRequest.js";
 
 const router = express.Router();
@@ -63,4 +63,13 @@ router.delete("/items/:productId", validateJWT, async(req: ExtendRequest, res) =
 
 })
 
+
+router.post("/checkout", validateJWT, async(req: ExtendRequest, res) => {
+    const userId = req.userId;
+    const {address} = req.body;
+    const response = await checkout({userId, address});
+  if (!userId) {
+        return res.status(400).send({ error: "UserId is missing in request" });
+    }
+})
 export default router;
