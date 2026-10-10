@@ -1,6 +1,5 @@
 import express from "express";
-import { getActiveCartForUser, addItemToCart } from "../Services/cartService.js";
-import validateJWT from "../middelwares/validateJWT.js"; 
+import { getActiveCartForUser, addItemToCart, updateItemInCart, deleteItemInCart, clearCart } from "../Services/cartService.js";import validateJWT from "../middelwares/validateJWT.js"; 
 import type { ExtendRequest } from "../types/extendedRequest.js";
 
 const router = express.Router();
@@ -18,6 +17,14 @@ router.get('/', validateJWT, async (req: ExtendRequest, res) => {
     res.status(200).send(cart);
 });
 
+
+router.delete("/", validateJWT, async(req: ExtendRequest, res)=> {
+        const userId = req.userId; 
+        const response = await clearCart({userId});
+        if (!userId) {
+        return res.status(400).send({ error: "UserId is missing in request" });
+    }
+})
 // 2. إضافة عنصر للسلة
 router.post('/items', validateJWT, async (req: ExtendRequest, res) => {
     const userId = req.userId; 
@@ -36,5 +43,24 @@ router.post('/items', validateJWT, async (req: ExtendRequest, res) => {
         res.status(500).send({ error: error.message });
     }
 });
+router.put("/items", validateJWT, async (req: ExtendRequest, res) => {
+    const userId = req.userId; // استخدمنا نفس الطريقة الصحيحة زي الـ GET والـ POST
+    
+    if (!userId) {
+        return res.status(400).send({ error: "UserId is missing in request" });
+    }
+
+    const { productId, quantity } = req.body; 
+    const response = await updateItemInCart({ userId, productId, quantity });
+    res.status(response.statusCode).send(response.data);
+});
+
+router.delete("/items/:productId", validateJWT, async(req: ExtendRequest, res) => {
+    const userId =  req.userId;
+    const { productId } = req.params;
+    const response = await deleteItemInCart({ userId, productId});
+        res.status(response.statusCode).send(response.data);
+
+})
 
 export default router;
