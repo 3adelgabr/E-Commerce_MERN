@@ -63,12 +63,6 @@ export const seedInitialProducts = async () => {
             price: 45.00, 
             stock: 86
         },
-        {
-            title: "Designer Sunglasses", 
-            image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&auto=format&fit=crop&q=60", 
-            price: 95.00, 
-            stock: 23
-        },
     ];
 
         const existingProducts = await getAllProducts();
